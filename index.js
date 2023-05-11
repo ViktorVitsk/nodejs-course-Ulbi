@@ -1,10 +1,9 @@
-const { json } = require('express');
 const EventEmitter = require('events');
 const http = require('http');
+const PORT = process.env.PORT || 5000;
 
 const emitter = new EventEmitter();
 
-const PORT = process.env.PORT || 5000;
 
 class Router {
   constructor() {
@@ -28,10 +27,34 @@ class Router {
       handler(req, res);
     });
   }
+
+  get(path, handler) {
+    this.request('GET', path, handler);
+  }
+  post(path, handler) {
+    this.request('POST', path, handler);
+  }
+  put(path, handler) {
+    this.request('PUT', path, handler);
+  }
+  delete(path, handler) {
+    this.request('DELETE', path, handler);
+  }
 }
 
+const router = new Router();
+router.get('/users', (req, res) => {
+  res.end('Request has been sent');
+});
+router.get('/posts', (req, res) => {
+  res.end('Request has been sent');
+});
+
 const server = http.createServer((req, res) => {
-  res.end(req.url);
+  const emitted = emitter.emit(`[${req.url}]:[${req.method}]`, req, res);
+  if (!emitted) {
+    res.end();
+  }
 });
 
 server.listen(PORT, () => console.log(`Server started on PORT ${PORT}`));
