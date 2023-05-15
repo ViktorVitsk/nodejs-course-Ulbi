@@ -5,6 +5,11 @@ module.exports = class Application {
   constructor() {
     this.emitter = new EventEmitter();
     this.server = this._createServer();
+    this.middlewares = [];
+  }
+
+  use(middleware) {
+    this.middlewares.push(middleware);
   }
 
   listen(port, callback) {
@@ -12,11 +17,12 @@ module.exports = class Application {
   }
 
   addRouter(router) {
-    Object.keys(router.endpoints).forEach(path => {
+    Object.keys(router.endpoints).forEach((path) => {
       const endpoint = router.endpoints[path];
-      Object.keys(endpoint).forEach(method => {
-        const handler = endpoint[method];
+      Object.keys(endpoint).forEach((method) => {
         this.emitter.on(this._getRouterMask(path, method), (req, res) => {
+          const handler = endpoint[method];
+          this.middlewares.forEach((middleware) => middleware(req, res));
           handler(req, res);
         });
       });
