@@ -1,30 +1,20 @@
-const users = [
-  {
-    id: 1,
-    name: 'Vitsk',
-  },
-  {
-    id: 2,
-    name: 'Vasya',
-  },
-  {
-    id: 3,
-    name: 'Maxim',
-  },
-];
+const User = require('./user-model');
 
-const getUser = (req, res) => {
+const getUser = async (req, res) => {
+  let users;
+
   if (req.params.id) {
-    return res.send(users.find(user => user.id == req.params.id));
+    users = await User.findById(req.params.id);
+  } else {
+    users = await User.find();
   }
 
   res.send(users);
 };
 
-const createUser = (req, res) => {
-  const user = req.body;
-  users.push(user);
-  res.send(users);
+const createUser = async (req, res) => {
+  const user = await User.create(req.body);
+  res.send(user);
 };
 
 module.exports = {
